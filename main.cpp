@@ -38,28 +38,26 @@ void addPeople(std::vector<shared_ptr<People>>& pvec)
 }
 
 
-template<typename T1, typename T2>
-bool doSortByID1(T1& t1, T2& t2)
-//bool doSortByID1(People*& t1, People*& t2)
-{
-  return t1->age() < t2->age();
-}
-template<typename T1>
-bool doSortByID2(T1& t1)
-//bool doSortByID1(People*& t1, People*& t2)
-{
-  return true;
-  //return t1->age() < t2->age();
-}
 
-//sort using a custom function object so sort can determine which template function to use.
-struct {
+struct SortByType {
+
   template<typename T1, typename T2>
-  bool operator()(T1& a, T2& b)
-  {
-    return a->age() < b->age();
+  bool operator()(T1& lhs, T2& rhs) {
+    if (!m_sortType.compare(SORTBYID)) {
+      return lhs->id() < rhs->id();
+    }
+    else if (!m_sortType.compare(SORTBYNAME)) {
+      return lhs->name() < rhs->name();
+    }
+    else if (!m_sortType.compare(SORTBYAGE)) {
+      return lhs->age() < rhs->age();
+    }
   }
-} custoLess;
+  SortByType(const string& type) : m_sortType(type) { ; }
+  const string m_sortType;
+};
+
+
 
 struct {
   template<typename T>
@@ -74,7 +72,7 @@ int main()
 {
   std::vector<shared_ptr<People>> peopleVec;
   addPeople(peopleVec);
-  std::sort(peopleVec.begin(), peopleVec.end(), /*Utility::*/custoLess);
+  std::sort(peopleVec.begin(), peopleVec.end(), SortByType(SORTBYAGE));
 
   for_each(std::begin(peopleVec), std::end(peopleVec), print1);
 
